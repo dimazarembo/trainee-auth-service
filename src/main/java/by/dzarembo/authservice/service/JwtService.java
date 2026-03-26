@@ -7,6 +7,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import org.springframework.stereotype.Service;
+import static by.dzarembo.authservice.service.JwtConstants.*;
 
 import java.time.Instant;
 
@@ -23,11 +24,11 @@ public class JwtService {
     }
 
     public String generateAccessToken(CredentialEntity credential) {
-        return generateToken(credential, jwtProperties.accessTokenExpiration(), "access");
+        return generateToken(credential, jwtProperties.accessTokenExpiration(), ACCESS_TOKEN);
     }
 
     public String generateRefreshToken(CredentialEntity credential) {
-        return generateToken(credential, jwtProperties.refreshTokenExpiration(), "refresh");
+        return generateToken(credential, jwtProperties.refreshTokenExpiration(), REFRESH_TOKEN);
     }
 
     private String generateToken(CredentialEntity credential, long expirationMs, String type) {
@@ -35,8 +36,8 @@ public class JwtService {
 
         return JWT.create()
                 .withSubject(String.valueOf(credential.getUserId()))
-                .withClaim("role", credential.getRole().name())
-                .withClaim("type", type)
+                .withClaim(ROLE, credential.getRole().name())
+                .withClaim(TYPE, type)
                 .withIssuedAt(now)
                 .withExpiresAt(now.plusMillis(expirationMs))
                 .sign(algorithm);

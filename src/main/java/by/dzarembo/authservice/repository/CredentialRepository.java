@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
+/**
+ * Repository for storing and reading user credentials.
+ */
 public interface CredentialRepository extends JpaRepository<CredentialEntity, Long> {
     boolean existsByLogin(String login);
 

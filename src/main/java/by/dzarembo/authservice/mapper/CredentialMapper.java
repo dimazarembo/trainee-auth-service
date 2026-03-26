@@ -6,6 +6,9 @@ import by.dzarembo.authservice.entity.CredentialEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Maps credential entities to API DTOs and back.
+ */
 @Mapper(componentModel = "spring")
 public interface CredentialMapper {
 

@@ -12,6 +12,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import static by.dzarembo.authservice.service.JwtConstants.*;
 
 @Service
 @AllArgsConstructor
@@ -26,7 +27,7 @@ public class AuthService {
         if (!passwordEncoder.matches(loginRequest.getPassword(), credentialEntity.getPasswordHash())) {
             throw new InvalidCredentialException("Invalid login or password");
         }
-        if (credentialEntity.getActive().equals(false)) {
+        if (Boolean.FALSE.equals(credentialEntity.getActive())) {
             throw new InactiveUserException("User is not active.");
         }
 
@@ -44,8 +45,8 @@ public class AuthService {
             throw new InvalidTokenException("Invalid token");
         }
         Long userId = Long.valueOf(jwt.getSubject());
-        String role = jwt.getClaim("role").asString();
-        String tokenType = jwt.getClaim("type").asString();
+        String role = jwt.getClaim(ROLE).asString();
+        String tokenType = jwt.getClaim(TYPE).asString();
 
         return new ValidationTokenResponse(true, userId, role, tokenType);
     }
@@ -58,8 +59,8 @@ public class AuthService {
             throw new InvalidTokenException("Invalid token");
         }
 
-        String tokenType = jwt.getClaim("type").asString();
-        if (!"refresh".equals(tokenType)) {
+        String tokenType = jwt.getClaim(TYPE).asString();
+        if (!REFRESH_TOKEN.equals(tokenType)) {
             throw new InvalidTokenTypeException("Invalid token type");
         }
 
@@ -68,7 +69,7 @@ public class AuthService {
         CredentialEntity credential = credentialRepository
                 .findByUserId(userId).orElseThrow(() -> new InvalidCredentialException("Invalid token"));
 
-        if (credential.getActive().equals(false)) {
+        if (Boolean.FALSE.equals(credential.getActive())) {
             throw new InactiveUserException("User is not active.");
         }
         return new TokenPairResponse(

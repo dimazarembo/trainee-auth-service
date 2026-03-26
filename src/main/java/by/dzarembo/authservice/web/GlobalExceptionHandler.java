@@ -15,48 +15,28 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDuplicateLogin(
             DuplicateLoginException ex
     ) {
-        ErrorResponse body = new ErrorResponse(
-                Instant.now(),
-                "Bad Request",
-                ex.getMessage()
-        );
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+        return buildErrorResponse(HttpStatus.CONFLICT, "Bad Request", ex.getMessage());
     }
 
     @ExceptionHandler(DuplicateCredentialException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateCredential(
             DuplicateCredentialException ex
     ) {
-        ErrorResponse body = new ErrorResponse(
-                Instant.now(),
-                "Bad Request",
-                ex.getMessage()
-        );
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+        return buildErrorResponse(HttpStatus.CONFLICT, "Bad Request", ex.getMessage());
     }
 
     @ExceptionHandler(InvalidCredentialException.class)
     public ResponseEntity<ErrorResponse> handleInvalidCredential(
             InvalidCredentialException ex
     ) {
-        ErrorResponse body = new ErrorResponse(
-                Instant.now(),
-                "Access Denied",
-                ex.getMessage()
-        );
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Access Denied", ex.getMessage());
     }
 
     @ExceptionHandler(InactiveUserException.class)
     public ResponseEntity<ErrorResponse> handleInactiveUser(
             InactiveUserException ex
     ) {
-        ErrorResponse body = new ErrorResponse(
-                Instant.now(),
-                "Access Denied",
-                ex.getMessage()
-        );
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "Access Denied", ex.getMessage());
     }
 
 
@@ -64,12 +44,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidToken(
             InvalidTokenException ex
     ) {
-        ErrorResponse body = new ErrorResponse(
-                Instant.now(),
-                "Unauthorized",
-                ex.getMessage()
-        );
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", ex.getMessage());
     }
 
 
@@ -77,12 +52,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidTokenType(
             InvalidTokenTypeException ex
     ) {
-        ErrorResponse body = new ErrorResponse(
-                Instant.now(),
-                "Unauthorized",
-                ex.getMessage()
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", ex.getMessage());
+    }
+
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String error, String message) {
+        return ResponseEntity.status(status).body(
+                new ErrorResponse(
+                        Instant.now(),
+                        error,
+                        message
+                )
         );
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
 }
