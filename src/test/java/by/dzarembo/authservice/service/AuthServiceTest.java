@@ -67,10 +67,11 @@ class AuthServiceTest {
     @Test
     void login_shouldThrowInvalidCredentialException_whenPasswordDoesNotMatch() {
         CredentialEntity credential = buildCredential(7L, true);
+        LoginRequest loginRequest = new LoginRequest("ivan", "wrong-password");
         when(credentialRepository.findByLogin("ivan")).thenReturn(Optional.of(credential));
         when(passwordEncoder.matches("wrong-password", "encoded-password")).thenReturn(false);
 
-        assertThatThrownBy(() -> authService.login(new LoginRequest("ivan", "wrong-password")))
+        assertThatThrownBy(() -> authService.login(loginRequest))
                 .isInstanceOf(InvalidCredentialException.class)
                 .hasMessage("Invalid login or password");
 
@@ -82,10 +83,11 @@ class AuthServiceTest {
     @Test
     void login_shouldThrowInactiveUserException_whenCredentialIsInactive() {
         CredentialEntity credential = buildCredential(7L, false);
+        LoginRequest loginRequest = new LoginRequest("ivan", "plain-password");
         when(credentialRepository.findByLogin("ivan")).thenReturn(Optional.of(credential));
         when(passwordEncoder.matches("plain-password", "encoded-password")).thenReturn(true);
 
-        assertThatThrownBy(() -> authService.login(new LoginRequest("ivan", "plain-password")))
+        assertThatThrownBy(() -> authService.login(loginRequest))
                 .isInstanceOf(InactiveUserException.class)
                 .hasMessage("User is not active.");
 
@@ -115,10 +117,11 @@ class AuthServiceTest {
 
     @Test
     void validate_shouldThrowInvalidTokenException_whenVerificationFails() {
+        ValidationTokenRequest validationTokenRequest = new ValidationTokenRequest("invalid-token");
         when(jwtService.verifyToken("invalid-token"))
                 .thenThrow(new JWTVerificationException("Token invalid"));
 
-        assertThatThrownBy(() -> authService.validate(new ValidationTokenRequest("invalid-token")))
+        assertThatThrownBy(() -> authService.validate(validationTokenRequest))
                 .isInstanceOf(InvalidTokenException.class)
                 .hasMessage("Invalid token");
     }
@@ -148,11 +151,12 @@ class AuthServiceTest {
     @Test
     void refreshToken_shouldThrowInvalidTokenTypeException_whenTokenTypeIsNotRefresh() {
         DecodedJWT decodedJwt = mock(DecodedJWT.class);
+        RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest("access-token");
         Claim tokenTypeClaim = stringClaim("access");
         when(jwtService.verifyToken("access-token")).thenReturn(decodedJwt);
         when(decodedJwt.getClaim("type")).thenReturn(tokenTypeClaim);
 
-        assertThatThrownBy(() -> authService.refreshToken(new RefreshTokenRequest("access-token")))
+        assertThatThrownBy(() -> authService.refreshToken(refreshTokenRequest))
                 .isInstanceOf(InvalidTokenTypeException.class)
                 .hasMessage("Invalid token type");
     }
